@@ -23,6 +23,7 @@ namespace jianjianwang
     /// </summary>
     public partial class MainWindow : Window
     {
+        Dictionary<double, List<string>> dataMap = new Dictionary<double, List<string>>();
 
         public MainWindow()
         {
@@ -30,7 +31,7 @@ namespace jianjianwang
         }
         /// <summary>
         /// 读取excel
-        /// 读取数据
+        /// 读取数据 
         /// </summary>
         /// <param name="filePath">文件路径</param>
         private void ReadFile(String filePath)
@@ -39,18 +40,62 @@ namespace jianjianwang
             IWorkbook workbook = WorkbookFactory.Create(filePath);
             ISheet sheet = workbook.GetSheetAt(1);//获取第2个工作薄
             IRow row = sheet.GetRow(0);//获取第一行
-            foreach(var cell in row.Cells)
+
+            //定位 年份列、风向列
+            int yearColumnIndex = 0;
+            int windColumnIndex = 0;
+            for (int i = 0; i < row.Cells.Count; i++)
             {
-                if (cell.StringCellValue.Equals("年份"))
+                if ("年份".Equals(row.Cells[i].StringCellValue))
                 {
-
+                    yearColumnIndex = i;
                 }
-                if (cell.StringCellValue.Equals("风向"))
+                if ("风向".Equals(row.Cells[i].StringCellValue))
                 {
-
+                    windColumnIndex = i;
                 }
             }
-           
+
+            int rowCount = sheet.PhysicalNumberOfRows;
+            // 以行遍历,从第二行开始
+            for (int j = 1; j < rowCount; j++)
+            {
+                row = sheet.GetRow(j);
+                double year = row.Cells[yearColumnIndex].NumericCellValue;
+
+                List<string> listDataByYear;
+                if (!dataMap.ContainsKey(year))
+                {
+                    listDataByYear = new List<string>();
+                    dataMap.Add(year, listDataByYear);
+                }
+                else
+                {
+                    listDataByYear = dataMap[year];
+                }
+
+                listDataByYear.Add(row.Cells[windColumnIndex].StringCellValue);
+
+
+            }
+        }
+        /// <summary>
+        /// 整理数据
+        /// </summary>
+        private void SortData()
+        {
+            foreach (var data in dataMap)
+            {
+                List<string> windList = data.Value;
+                var groupList = windList.GroupBy(x => x).Select(group => new
+                {
+                    WindName = group.Key,
+                    WindCount = group.Count(),
+                }).ToList();
+                Console.WriteLine(groupList);
+
+            }
+
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
@@ -61,10 +106,19 @@ namespace jianjianwang
             if (dialog.ShowDialog() == true)
             {
                 ReadFile(dialog.FileName);
+                SortData();
             }
-     
-     
+
+
         }
 
+        private void Window_Drop(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                string filePath = ((Array)e.Data.GetData(DataFormats.FileDrop)).GetValue(0).ToString();
+                ReadFile(filePath);
+            }
+        }
     }
 }
