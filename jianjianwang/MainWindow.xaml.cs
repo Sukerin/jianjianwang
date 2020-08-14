@@ -113,8 +113,8 @@ namespace jianjianwang
 
             if (dialog.ShowDialog() == true)
             {
-                ReadFile(dialog.FileName);
-                SortData();
+                Go(dialog.FileName);
+
             }
 
 
@@ -125,8 +125,14 @@ namespace jianjianwang
             if (e.Data.GetDataPresent(DataFormats.FileDrop))
             {
                 string filePath = ((Array)e.Data.GetData(DataFormats.FileDrop)).GetValue(0).ToString();
-                ReadFile(filePath);
+                Go(filePath);
             }
+        }
+
+        private void Go(string filePath)
+        {
+            ReadFile(filePath);
+            SortData();
         }
     }
 }
