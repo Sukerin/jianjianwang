@@ -24,7 +24,19 @@ namespace jianjianwang
     public partial class MainWindow : Window
     {
         Dictionary<double, List<string>> dataMap = new Dictionary<double, List<string>>();
+        Dictionary<double, List<Wind>> dataSortMap = new Dictionary<double, List<Wind>>();
+        private class Wind
 
+        {
+            public string weight;
+            public int count;
+
+            public Wind(string weight, int count)
+            {
+                this.weight = weight;
+                this.count = count;
+            }
+        }
         public MainWindow()
         {
             InitializeComponent();
@@ -87,13 +99,9 @@ namespace jianjianwang
             foreach (var data in dataMap)
             {
                 List<string> windList = data.Value;
-                var groupList = windList.GroupBy(x => x).Select(group => new
-                {
-                    WindName = group.Key,
-                    WindCount = group.Count(),
-                }).ToList();
+                var groupList = windList.GroupBy(x => x).Select(group => new Wind(group.Key, group.Count())).ToList();
                 Console.WriteLine(groupList);
-
+                dataSortMap.Add(data.Key, groupList);
             }
 
         }
