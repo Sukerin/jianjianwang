@@ -15,6 +15,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Collections.ObjectModel;
 
 namespace jianjianwang
 {
@@ -24,21 +25,34 @@ namespace jianjianwang
     public partial class MainWindow : Window
     {
         Dictionary<double, List<string>> dataMap = new Dictionary<double, List<string>>();
+     
         Dictionary<double, List<Wind>> dataSortMap = new Dictionary<double, List<Wind>>();
+
+        List<string> defaultDirectionList = new List<string>{ "N","NNE","NE","ENE","E","ESE","SE","SSE","S","SSW","SW","WSW","W","WNW","NW","NNW", "/","C" };
+
+
+        
         private class Wind
 
         {
-            public string weight;
-            public int count;
+            public double year { get; set; }
+            public string direction { get; set; }
+            public int count { get; set; }
 
-            public Wind(string weight, int count)
+            public Wind(string direction, int count, double year)
             {
-                this.weight = weight;
+                this.direction = direction;
+                this.count = count;
+            }
+            public Wind(string direction, int count)
+            {
+                this.direction = direction;
                 this.count = count;
             }
         }
         public MainWindow()
         {
+            Resources["Winds"] = dataSortMap;
             InitializeComponent();
         }
         /// <summary>
@@ -98,11 +112,49 @@ namespace jianjianwang
         {
             foreach (var data in dataMap)
             {
+
                 List<string> windList = data.Value;
-                var groupList = windList.GroupBy(x => x).Select(group => new Wind(group.Key, group.Count())).ToList();
-                Console.WriteLine(groupList);
+
+                var groupDic = windList.GroupBy(x => x).ToDictionary(group => group.Key, group => new Wind(group.Key, group.Count()));
+                
+                foreach (var dd in defaultDirectionList)
+                {
+                    if (!groupDic.ContainsKey(dd))
+                    {
+                        groupDic.Add(dd, new Wind(dd, 0));
+                    }
+
+                }
+                groupDic=groupDic.OrderBy(p => p.Key).ToDictionary(p => p.Key, o => o.Value);
+                var groupList = new List<Wind>();
+                foreach(var item in groupDic)
+                {
+                    groupList.Add(item.Value);
+                }
                 dataSortMap.Add(data.Key, groupList);
+
             }
+            
+
+            int count = 0;
+            foreach (List<Wind> lst in dataSortMap.Values)
+            {
+                if (lst.Count > count)
+                {
+
+                    for (int i = count; i < lst.Count; i++)
+                    {
+                        DataGridTextColumn column = new DataGridTextColumn();
+                        column.Header = lst[i].direction;
+                        column.Binding = new Binding(string.Format("Value[{0}].count", i));
+                        dataGrid.Columns.Add(column);
+                    }
+                    count = lst.Count;
+                }
+            }
+
+
+      
 
         }
 
@@ -131,6 +183,8 @@ namespace jianjianwang
 
         private void Go(string filePath)
         {
+            dataMap.Clear();
+            dataSortMap.Clear();
             ReadFile(filePath);
             SortData();
         }
