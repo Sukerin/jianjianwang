@@ -35,6 +35,9 @@
                 Grid.Column="0" Grid.Row="1"
                 Name="dataGrid" HorizontalAlignment="Left"  ItemsSource="{DynamicResource Winds}"  AutoGenerateColumns="False">
         </DataGrid>
+        <WebBrowser Grid.Column="1" Grid.Row="1"/>
+
+
     </Grid>
 
 </Window>
