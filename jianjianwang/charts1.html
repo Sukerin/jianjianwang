@@ -14,7 +14,7 @@
 
         html, body {
             width: 100%;
-            height:100%;
+            height: 100%;
         }
     </style>
 </head>
@@ -23,21 +23,93 @@
     <div id="main" style="width: 100%; height: 100%;"/>
     
     <script type="text/javascript">
+        function initOption(result,maxCount) {
+            //window.alert(params)
+            var jsonObject = JSON.parse(result);
+
+            // 填入数据
+            myChart.setOption({  
+                legend: {
+                    data: ['0', '1']
+                },
+                radar: {
+                    // shape: 'circle',
+                    name: {
+                        textStyle: {
+                            color: '#fff',
+                            backgroundColor: '#999',
+                            borderRadius: 3,
+                            padding: [3, 5]
+                        }
+                    },
+                    axisLabel: {
+                        show: true,
+                        formatter: function (value, index) {
+                            // 格式化成月/日，只在第一个刻度显示年份
+                            
+                            if (index === 0) {
+                                return null;
+                            }
+                            return value;
+                        }
+
+                        
+                    },
+                    indicator: [
+
+                        { name: 'N', max: 1000 },
+                        { name: 'NNW', max: 1000},
+                        { name: 'NW', max: 1000},
+                        { name: 'WNW', max: 1000},
+                        { name: 'W', max: 1000},
+                        { name: 'WSW', max: 1000},
+                        { name: 'SW', max: 1000 },
+                        { name: 'WSSW', max: 1000 },
+                        { name: 'S', max: 1000},
+                        { name: 'SSE', max: 1000},
+                        { name: 'SE', max: 1000},
+                        { name: 'ESE', max: 1000},
+                        { name: 'E', max: 1000 },
+                        { name: 'ENE', max: 1000},
+                        { name: 'NE', max: 1000},
+                        { name: 'NNE', max: 1000}
+
+                    ]
+                },
+                series: [
+                    {
+                    name: 'rose chart',
+                    type: 'radar',
+                    // areaStyle: {normal: {}},
+                        data: [{
+                            name: '0',
+                            value: jsonObject[0]
+                        },
+                        {
+                            name: '1',
+                            value: jsonObject[1]
+                        }]
+                }]
+           
+                
+            });
+        }
+
         var myChart = echarts.init(document.getElementById('main'));
-        var option = {
-            xAxis: {
-                type: 'category',
-                data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+        option = {
+            //title: {
+            //    text: '基础雷达图'
+            //},
+            tooltip: {},
+            legend: {
+                data: []
             },
-            yAxis: {
-                type: 'value'
-            },
-            series: [{
-                data: [820, 932, 901, 934, 1290, 1330, 1320],
-                type: 'line'
-            }]
+           
+            series: []
         };
         myChart.setOption(option);
+
+ 
     </script>
 </body>
 </html>
