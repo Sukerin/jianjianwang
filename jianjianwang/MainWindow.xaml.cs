@@ -148,6 +148,7 @@ namespace jianjianwang
                         column.Header = lst[i].direction;
                         column.Binding = new Binding(string.Format("Value[{0}].count", i));
                         dataGrid.Columns.Add(column);
+                        
                     }
                     count = lst.Count;
                 }

@@ -13,24 +13,28 @@
         FontFamily="{materialDesign:MaterialDesignFont}"
     
         Title="MainWindow" Height="450" Width="800" Drop="Window_Drop" AllowDrop="True">
-    <Grid HorizontalAlignment="Right" Width="792">
-
-        <Button
-            Style="{StaticResource MaterialDesignRaisedDarkButton}"
-            Width="100"
-            ToolTip="Resource name: MaterialDesignRaisedLightDarkButton" Click="Button_Click" Margin="530,216,162,171">
-            _DARK
-        </Button>
-        <DataGrid Name="dataGrid" HorizontalAlignment="Left" Height="249" Margin="43,28,0,0" VerticalAlignment="Top" Width="384" ItemsSource="{DynamicResource Winds}"  AutoGenerateColumns="False">
-
-
-            <!-- <DataGrid.Columns>
-                <DataGridTextColumn Binding="{Binding direction}" Header="风向"/>
-                <DataGridTextColumn Binding="{Binding count}" Header="2017"/>
-                <DataGridTextColumn Binding="{Binding count}" Header="2018"/>
-            </DataGrid.Columns>-->
-
+    <Grid >
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition />
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="25"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <StackPanel Orientation="Horizontal" Grid.ColumnSpan="2">
+            <Button 
+                Style="{StaticResource MaterialDesignRaisedDarkButton}"
+                Width="100"
+                ToolTip="Resource name: MaterialDesignRaisedLightDarkButton" Click="Button_Click" >
+                _DARK
+            </Button>
+        </StackPanel>
+        
+        <DataGrid 
+                Grid.Column="0" Grid.Row="1"
+                Name="dataGrid" HorizontalAlignment="Left"  ItemsSource="{DynamicResource Winds}"  AutoGenerateColumns="False">
         </DataGrid>
-
     </Grid>
+
 </Window>
