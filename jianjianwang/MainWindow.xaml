@@ -12,7 +12,7 @@
         TextElement.FontSize="14"
         FontFamily="{materialDesign:MaterialDesignFont}"
     
-        Title="MainWindow" Height="450" Width="800" Drop="Window_Drop" AllowDrop="True">
+        Title="MainWindow" Height="800" Width="1200" Drop="Window_Drop" AllowDrop="True">
     <Grid >
         <Grid.ColumnDefinitions>
             <ColumnDefinition />
@@ -35,7 +35,7 @@
                 Grid.Column="0" Grid.Row="1"
                 Name="dataGrid" HorizontalAlignment="Left"  ItemsSource="{DynamicResource Winds}"  AutoGenerateColumns="False">
         </DataGrid>
-        <WebBrowser Grid.Column="1" Grid.Row="1"/>
+        <WebBrowser Name="webBrowser" Grid.Column="1" Grid.Row="1"/>
 
 
     </Grid>

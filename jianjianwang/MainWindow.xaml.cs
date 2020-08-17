@@ -16,6 +16,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Collections.ObjectModel;
+using Newtonsoft.Json;
 
 namespace jianjianwang
 {
@@ -28,7 +29,7 @@ namespace jianjianwang
      
         Dictionary<double, List<Wind>> dataSortMap = new Dictionary<double, List<Wind>>();
 
-        List<string> defaultDirectionList = new List<string>{ "N","NNE","NE","ENE","E","ESE","SE","SSE","S","SSW","SW","WSW","W","WNW","NW","NNW", "/","C" };
+        List<string> defaultDirectionList = new List<string>{ "N","NNE","NE","ENE","E","ESE","SE","SSE","S","SSW","SW","WSW","W","WNW","NW","NNW" };
 
 
         
@@ -54,6 +55,7 @@ namespace jianjianwang
         {
             Resources["Winds"] = dataSortMap;
             InitializeComponent();
+            webBrowser.Navigate(new Uri(Directory.GetCurrentDirectory() + "\\charts1.html"));
         }
         /// <summary>
         /// 读取excel
@@ -116,7 +118,8 @@ namespace jianjianwang
                 List<string> windList = data.Value;
 
                 var groupDic = windList.GroupBy(x => x).ToDictionary(group => group.Key, group => new Wind(group.Key, group.Count()));
-                
+                groupDic.Remove("/");
+                groupDic.Remove("C");
                 foreach (var dd in defaultDirectionList)
                 {
                     if (!groupDic.ContainsKey(dd))
@@ -125,6 +128,7 @@ namespace jianjianwang
                     }
 
                 }
+
                 groupDic=groupDic.OrderBy(p => p.Key).ToDictionary(p => p.Key, o => o.Value);
                 var groupList = new List<Wind>();
                 foreach(var item in groupDic)
@@ -159,6 +163,30 @@ namespace jianjianwang
 
         }
 
+        void Render()
+        {
+            //var years = dataSortMap.Keys;
+            
+            var yearJson=JsonConvert.SerializeObject(dataSortMap.Keys);
+            List<List<int>> dataCountlist = new List<List<int>>();
+            List<int> countlist;
+            int maxCount=0;
+            foreach (var value in dataSortMap.Values)
+            {
+                countlist = value.Select(x => x.count).ToList();
+                if(maxCount< countlist.Max())
+                {
+                    maxCount = countlist.Max();
+                }
+                
+                dataCountlist.Add(countlist);
+            }
+            var result=JsonConvert.SerializeObject(dataSortMap);
+            
+            webBrowser.InvokeScript("initOption", JsonConvert.SerializeObject(dataCountlist), maxCount);
+            
+        }
+
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             // 在WPF中， OpenFileDialog位于Microsoft.Win32名称空间
@@ -188,6 +216,8 @@ namespace jianjianwang
             dataSortMap.Clear();
             ReadFile(filePath);
             SortData();
+            Render();
+
         }
     }
 }
