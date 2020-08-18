@@ -29,6 +29,8 @@ namespace jianjianwang
      
         Dictionary<double, List<Wind>> dataSortMap = new Dictionary<double, List<Wind>>();
 
+        Dictionary<string, List<Wind>> finalSortMap = new Dictionary<string, List<Wind>>();
+
         List<string> defaultDirectionList = new List<string>{ "N","NNE","NE","ENE","E","ESE","SE","SSE","S","SSW","SW","WSW","W","WNW","NW","NNW" };
 
 
@@ -90,6 +92,22 @@ namespace jianjianwang
             {
                 row = sheet.GetRow(j);
                 double year = row.Cells[yearColumnIndex].NumericCellValue;
+                string direction= row.Cells[windColumnIndex].StringCellValue;
+                List<Wind> windList;
+                if (defaultDirectionList.Contains(direction))
+                {
+                    if (!finalSortMap.ContainsKey(direction))
+                    {
+                        windList = new List<Wind>();
+                        finalSortMap.Add(direction, windList);
+                    }
+                    else
+                    {
+                        windList = finalSortMap[direction];
+                    }
+                    Wind wind = new Wind(direction, 0, year);
+                    windList.Add(wind);
+                }
 
                 List<string> listDataByYear;
                 if (!dataMap.ContainsKey(year))
@@ -112,6 +130,26 @@ namespace jianjianwang
         /// </summary>
         private void SortData()
         {
+
+
+            foreach (var data in finalSortMap)
+            {
+
+                List<Wind> windList = data.Value;
+
+                var groupDic = windList.GroupBy(x => x.year).Select(group => new Wind(data.Key,group.Count(),group.Key)).ToList();
+
+                foreach (var dd in defaultDirectionList)
+                {
+                    if (!finalSortMap.ContainsKey(dd))
+                    {
+                        finalSortMap.Add(dd, new List<Wind>());
+                    }
+
+                }
+            }
+
+
             foreach (var data in dataMap)
             {
 
@@ -140,6 +178,18 @@ namespace jianjianwang
             }
             
 
+      
+
+      
+
+        }
+        /// <summary>
+        /// 渲染
+        /// </summary>
+        void Render()
+        {
+            
+            //渲染表格
             int count = 0;
             foreach (List<Wind> lst in dataSortMap.Values)
             {
@@ -152,22 +202,14 @@ namespace jianjianwang
                         column.Header = lst[i].direction;
                         column.Binding = new Binding(string.Format("Value[{0}].count", i));
                         dataGrid.Columns.Add(column);
-                        
+
                     }
                     count = lst.Count;
                 }
             }
 
-
-      
-
-        }
-
-        void Render()
-        {
-            //var years = dataSortMap.Keys;
-            
-            var yearJson=JsonConvert.SerializeObject(dataSortMap.Keys);
+            //渲染玫瑰图
+            var yearJson =JsonConvert.SerializeObject(dataSortMap.Keys);
             List<List<int>> dataCountlist = new List<List<int>>();
             List<int> countlist;
             int maxCount=0;
@@ -181,9 +223,14 @@ namespace jianjianwang
                 
                 dataCountlist.Add(countlist);
             }
+            //计算几位数
+            int n = (int)Math.Ceiling(Math.Log10(maxCount));
+            double v1 = Math.Floor(maxCount / Math.Pow(10, n - 2));
+            double maxAxis = (v1 + 1) * Math.Pow(10, n - 2);
+
             var result=JsonConvert.SerializeObject(dataSortMap);
             
-            webBrowser.InvokeScript("initOption", JsonConvert.SerializeObject(dataCountlist), maxCount);
+            webBrowser.InvokeScript("initOption", JsonConvert.SerializeObject(dataCountlist), maxAxis);
             
         }
 
